@@ -1,0 +1,9 @@
+{
+  "challenger_version": "1",
+  "challenger_test_log_loss": 0.6134410215444541,
+  "champion_version_before": null,
+  "champion_test_log_loss": null,
+  "promoted": true,
+  "champion_version_after": "1",
+  "reason": "no champion yet"
+}

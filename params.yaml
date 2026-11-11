@@ -4,9 +4,9 @@
 data:
   # github = download Jeff Sackmann's CSVs; sample = synthetic data in the same format
   source: github
-  sackmann_ref: master          # pin a commit SHA here for exact reproducibility
-  base_url_atp: https://raw.githubusercontent.com/JeffSackmann/tennis_atp
-  base_url_wta: https://raw.githubusercontent.com/JeffSackmann/tennis_wta
+  sackmann_ref: main          # pin a commit SHA here for exact reproducibility
+  base_url_atp: https://raw.githubusercontent.com/Aneeshers/tennis-sackmann-archive/{ref}/atp
+  base_url_wta: https://raw.githubusercontent.com/Aneeshers/tennis-sackmann-archive/{ref}/wta
   tours: [atp, wta]
   start_year: 1991              # Elo warm-up starts here
   end_year: 2026

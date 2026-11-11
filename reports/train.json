@@ -1,0 +1,37 @@
+{
+  "run_id": "53482e0681134efaa92f86a97038c911",
+  "model_uri": "runs:/53482e0681134efaa92f86a97038c911/model",
+  "registered_model": "acepredict",
+  "version": "1",
+  "best_candidate": "logreg",
+  "val": {
+    "accuracy": 0.6588326697096242,
+    "log_loss": 0.6099328577727231,
+    "brier": 0.2116999896764097,
+    "ece": 0.013939040356367624,
+    "n": 10297,
+    "roc_auc": 0.723609103954925
+  },
+  "candidates": {
+    "logreg": {
+      "accuracy": 0.6588326697096242,
+      "log_loss": 0.6099328577727231,
+      "brier": 0.2116999896764097,
+      "ece": 0.013939040356367624,
+      "n": 10297,
+      "roc_auc": 0.723609103954925
+    },
+    "lightgbm": {
+      "accuracy": 0.6571817034087598,
+      "log_loss": 0.6112843691532033,
+      "brier": 0.21229335870060678,
+      "ece": 0.01660951189627649,
+      "n": 10297,
+      "roc_auc": 0.7216439667393857
+    }
+  },
+  "candidate_run_ids": {
+    "logreg": "cec03dfc0e5a449c8411503371cb8894",
+    "lightgbm": "f2a56db00f6449c39ce874444395321a"
+  }
+}

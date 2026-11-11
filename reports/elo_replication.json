@@ -1,0 +1,17 @@
+{
+  "available": true,
+  "season": "ATP 2014",
+  "matches": 2491,
+  "accuracy": 0.6885,
+  "log_loss": 0.5855,
+  "brier": 0.2009,
+  "published_reference_accuracy": 0.7,
+  "params_source": "ray_tune",
+  "params": {
+    "initial": 1500.0,
+    "k_c": 226.041419972229,
+    "k_offset": 4.707182955317493,
+    "k_shape": 0.408650456520639,
+    "surface_weight": 0.5692222424116841
+  }
+}

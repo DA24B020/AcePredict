@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "initial": 1500.0,
+    "k_c": 226.041419972229,
+    "k_offset": 4.707182955317493,
+    "k_shape": 0.408650456520639,
+    "surface_weight": 0.5692222424116841
+  },
+  "best_val_log_loss": 0.6257446633139344,
+  "best_val_accuracy": 0.6465960959502768,
+  "default_params_val_log_loss": 0.6275429725788944,
+  "trials": 16,
+  "seconds": 35.38,
+  "trials_per_minute": 27.13,
+  "val_years": [
+    2022,
+    2023
+  ]
+}

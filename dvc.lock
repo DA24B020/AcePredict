@@ -1,0 +1,391 @@
+schema: '2.0'
+stages:
+  ingest:
+    cmd: python -m acepredict.pipeline.ingest
+    deps:
+    - path: src/acepredict/data/sample.py
+      hash: md5
+      md5: 979e02da50d560db9aaac4da1cf988d5
+      size: 9857
+    - path: src/acepredict/pipeline/ingest.py
+      hash: md5
+      md5: b90d83d5c196c2ca5495a71bb349efff
+      size: 3986
+    params:
+      params.yaml:
+        data:
+          source: github
+          sackmann_ref: main
+          base_url_atp: 
+            https://raw.githubusercontent.com/Aneeshers/tennis-sackmann-archive/{ref}/atp
+          base_url_wta: 
+            https://raw.githubusercontent.com/Aneeshers/tennis-sackmann-archive/{ref}/wta
+          tours:
+          - atp
+          - wta
+          start_year: 1991
+          end_year: 2026
+          levels_exclude:
+          - D
+          holdout_from: '2026-01-01'
+          download_timeout_s: 60
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: 80a40fdef3d3fadceca45b0b6c282aa2.dir
+      size: 42097924
+      nfiles: 72
+  validate:
+    cmd: python -m acepredict.pipeline.validate
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 80a40fdef3d3fadceca45b0b6c282aa2.dir
+      size: 42097924
+      nfiles: 72
+    - path: src/acepredict/data/schema.py
+      hash: md5
+      md5: 43c58793227922bb55b04f0b0b5ed90c
+      size: 3007
+    - path: src/acepredict/pipeline/validate.py
+      hash: md5
+      md5: cc877db07a7931a9af765e89d010d7f7
+      size: 4627
+    params:
+      params.yaml:
+        validation:
+          max_invalid_fraction: 0.05
+    outs:
+    - path: reports/data_validation.json
+      hash: md5
+      md5: 37e193542605a696bbdd4094abebde75
+      size: 33680
+  transform:
+    cmd: python -m acepredict.pipeline.transform
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 80a40fdef3d3fadceca45b0b6c282aa2.dir
+      size: 42097924
+      nfiles: 72
+    - path: reports/data_validation.json
+      hash: md5
+      md5: 37e193542605a696bbdd4094abebde75
+      size: 33680
+    - path: src/acepredict/spark_jobs/transform.py
+      hash: md5
+      md5: 9b5e91aec14dd793c66c869488d30b9c
+      size: 10244
+    params:
+      params.yaml:
+        data.holdout_from: '2026-01-01'
+        data.levels_exclude:
+        - D
+        features.form_window: 10
+        features.serve_window: 20
+        spark:
+          master: local[4]
+          driver_memory: 3g
+          shuffle_partitions: 8
+    outs:
+    - path: data/interim/live_matches.parquet
+      hash: md5
+      md5: eb441c40b194dd773acc376f8f7d865e.dir
+      size: 147549
+      nfiles: 4
+    - path: data/interim/matches.parquet
+      hash: md5
+      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      size: 7378775
+      nfiles: 4
+    - path: data/interim/player_match.parquet
+      hash: md5
+      md5: b8d497ad8e4e901e74e78d3158f433b2.dir
+      size: 15432138
+      nfiles: 4
+  tune_elo:
+    cmd: python -m acepredict.pipeline.tune_elo
+    deps:
+    - path: data/interim/matches.parquet
+      hash: md5
+      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      size: 7378775
+      nfiles: 4
+    - path: src/acepredict/ratings/elo.py
+      hash: md5
+      md5: 3a61235749c768423d4fa6f59dc06119
+      size: 7194
+    - path: src/acepredict/tuning/tune_elo.py
+      hash: md5
+      md5: 828b8fc8f51177ea7418e3afb3d71fbc
+      size: 4666
+    params:
+      params.yaml:
+        elo.initial: 1500
+        splits:
+          train_start: 2000
+          train_end: 2021
+          val_years:
+          - 2022
+          - 2023
+          test_years:
+          - 2024
+          - 2025
+        tune:
+          num_samples: 16
+          num_cpus: 4
+          dashboard: true
+          object_store_mb: 400
+          c_range:
+          - 150.0
+          - 400.0
+          offset_range:
+          - 2.0
+          - 10.0
+          shape_range:
+          - 0.2
+          - 0.6
+          weight_range:
+          - 0.2
+          - 0.8
+    outs:
+    - path: reports/elo_tuning.json
+      hash: md5
+      md5: 5081f64449707a8bfdefe97fe04817c4
+      size: 434
+  elo:
+    cmd: python -m acepredict.pipeline.elo
+    deps:
+    - path: data/interim/matches.parquet
+      hash: md5
+      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      size: 7378775
+      nfiles: 4
+    - path: reports/elo_tuning.json
+      hash: md5
+      md5: 5081f64449707a8bfdefe97fe04817c4
+      size: 434
+    - path: src/acepredict/pipeline/elo.py
+      hash: md5
+      md5: 7c8e068aa82cbf2d5dd337488da7bed8
+      size: 3598
+    - path: src/acepredict/ratings/elo.py
+      hash: md5
+      md5: 3a61235749c768423d4fa6f59dc06119
+      size: 7194
+    params:
+      params.yaml:
+        elo:
+          initial: 1500
+          k_c: 250.0
+          k_offset: 5.0
+          k_shape: 0.4
+          surface_weight: 0.5
+          use_tuned: true
+    outs:
+    - path: data/features/elo_history.parquet
+      hash: md5
+      md5: 72bf433a9145e01ae9a3aa62cfdd0dd8
+      size: 17539043
+    - path: data/features/elo_params.json
+      hash: md5
+      md5: dcd9393f8a9d749f73264b14e91380ef
+      size: 179
+    - path: data/features/elo_state.parquet
+      hash: md5
+      md5: ddc49e691252dc9493b3c354710c0a02
+      size: 203301
+    - path: reports/elo_replication.json
+      hash: md5
+      md5: 40c623375fafe89150c86ac453093e25
+      size: 380
+  features:
+    cmd: python -m acepredict.pipeline.features
+    deps:
+    - path: data/features/elo_history.parquet
+      hash: md5
+      md5: 72bf433a9145e01ae9a3aa62cfdd0dd8
+      size: 17539043
+    - path: data/features/elo_params.json
+      hash: md5
+      md5: dcd9393f8a9d749f73264b14e91380ef
+      size: 179
+    - path: data/interim/matches.parquet
+      hash: md5
+      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      size: 7378775
+      nfiles: 4
+    - path: data/interim/player_match.parquet
+      hash: md5
+      md5: b8d497ad8e4e901e74e78d3158f433b2.dir
+      size: 15432138
+      nfiles: 4
+    - path: src/acepredict/features/build.py
+      hash: md5
+      md5: 48f94415668ad5a819dc8138285f2fff
+      size: 8929
+    params:
+      params.yaml:
+        features.seed: 42
+        splits:
+          train_start: 2000
+          train_end: 2021
+          val_years:
+          - 2022
+          - 2023
+          test_years:
+          - 2024
+          - 2025
+    outs:
+    - path: data/features/train_table.parquet
+      hash: md5
+      md5: 672a58d301cec1e9eb354cee8ece94d1
+      size: 18486338
+    - path: reports/splits.json
+      hash: md5
+      md5: 0cd0bfb0f2f447171d932156007de85e
+      size: 523
+  train:
+    cmd: python -m acepredict.pipeline.train
+    deps:
+    - path: data/features/train_table.parquet
+      hash: md5
+      md5: 672a58d301cec1e9eb354cee8ece94d1
+      size: 18486338
+    - path: src/acepredict/features/build.py
+      hash: md5
+      md5: 48f94415668ad5a819dc8138285f2fff
+      size: 8929
+    - path: src/acepredict/models/pyfunc.py
+      hash: md5
+      md5: d9921f149753315219629e497870d1e5
+      size: 2837
+    - path: src/acepredict/models/train.py
+      hash: md5
+      md5: 010dc98bfea28884c73fcc4b86af0da0
+      size: 7059
+    params:
+      params.yaml:
+        model:
+          candidates:
+          - logreg
+          - lightgbm
+          logreg:
+            C: 1.0
+            max_iter: 1000
+          lightgbm:
+            n_estimators: 300
+            learning_rate: 0.05
+            num_leaves: 31
+            min_child_samples: 50
+        registry.name: acepredict
+        splits:
+          train_start: 2000
+          train_end: 2021
+          val_years:
+          - 2022
+          - 2023
+          test_years:
+          - 2024
+          - 2025
+    outs:
+    - path: reports/train.json
+      hash: md5
+      md5: 7efba8404c5d5bf28687d89114bcc65c
+      size: 1000
+  evaluate:
+    cmd: python -m acepredict.pipeline.evaluate
+    deps:
+    - path: data/features/train_table.parquet
+      hash: md5
+      md5: 672a58d301cec1e9eb354cee8ece94d1
+      size: 18486338
+    - path: reports/train.json
+      hash: md5
+      md5: 7efba8404c5d5bf28687d89114bcc65c
+      size: 1000
+    - path: src/acepredict/models/evaluate.py
+      hash: md5
+      md5: c49d4c016a06856ed420f2839ccfa9f5
+      size: 4649
+    outs:
+    - path: reports/metrics.json
+      hash: md5
+      md5: 17354c65292961bf9804a8ed53a05088
+      size: 1010
+    - path: reports/reliability.csv
+      hash: md5
+      md5: 025f2432964488b211747b7329798bbb
+      size: 233
+    - path: reports/segments.csv
+      hash: md5
+      md5: e28b2a16f6e540e7c2e443dbaf846aae
+      size: 914
+  register:
+    cmd: python -m acepredict.pipeline.register
+    deps:
+    - path: reports/metrics.json
+      hash: md5
+      md5: 17354c65292961bf9804a8ed53a05088
+      size: 1010
+    - path: reports/train.json
+      hash: md5
+      md5: 7efba8404c5d5bf28687d89114bcc65c
+      size: 1000
+    - path: src/acepredict/models/registry.py
+      hash: md5
+      md5: b01f1aaf486ddddddef0663835d18dd9
+      size: 3984
+    params:
+      params.yaml:
+        registry:
+          name: acepredict
+          gate_tolerance: 0.0
+    outs:
+    - path: reports/promotion.json
+      hash: md5
+      md5: 323bff26ce60a5c34cd2dba55bf39d4c
+      size: 234
+  snapshot:
+    cmd: python -m acepredict.pipeline.snapshot
+    deps:
+    - path: data/features/elo_history.parquet
+      hash: md5
+      md5: 72bf433a9145e01ae9a3aa62cfdd0dd8
+      size: 17539043
+    - path: data/features/elo_params.json
+      hash: md5
+      md5: dcd9393f8a9d749f73264b14e91380ef
+      size: 179
+    - path: data/features/elo_state.parquet
+      hash: md5
+      md5: ddc49e691252dc9493b3c354710c0a02
+      size: 203301
+    - path: data/features/train_table.parquet
+      hash: md5
+      md5: 672a58d301cec1e9eb354cee8ece94d1
+      size: 18486338
+    - path: data/interim/matches.parquet
+      hash: md5
+      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      size: 7378775
+      nfiles: 4
+    - path: data/interim/player_match.parquet
+      hash: md5
+      md5: b8d497ad8e4e901e74e78d3158f433b2.dir
+      size: 15432138
+      nfiles: 4
+    - path: reports/promotion.json
+      hash: md5
+      md5: 323bff26ce60a5c34cd2dba55bf39d4c
+      size: 234
+    - path: src/acepredict/pipeline/snapshot.py
+      hash: md5
+      md5: 49822cef7a01f9c50f2a23952661775a
+      size: 8495
+    outs:
+    - path: artifacts/snapshot
+      hash: md5
+      md5: a2fa9c4d23082435bf0a730ea838eb19.dir
+      size: 5011608
+      nfiles: 6

@@ -26,6 +26,9 @@ def file_url(params: dict[str, Any], tour: str, year: int) -> str:
     """URL of one yearly CSV at the configured Git ref."""
     base = params["data"][f"base_url_{tour}"].rstrip("/")
     ref = params["data"].get("sackmann_ref", "master")
+    if "{ref}" in base:
+        base = base.replace("{ref}", ref)
+        return f"{base}/{raw_file_name(tour, year)}"
     return f"{base}/{ref}/{raw_file_name(tour, year)}"
 
 
