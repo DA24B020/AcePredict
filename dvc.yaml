@@ -1,0 +1,147 @@
+# AcePredict CI pipeline. `dvc repro` reruns only the stages whose code, params or
+# data changed; `dvc dag` draws this file as the pipeline DAG.
+stages:
+  ingest:
+    cmd: python -m acepredict.pipeline.ingest
+    deps:
+      - src/acepredict/pipeline/ingest.py
+      - src/acepredict/data/sample.py
+    params:
+      - data
+    outs:
+      - data/raw
+
+  validate:
+    cmd: python -m acepredict.pipeline.validate
+    deps:
+      - data/raw
+      - src/acepredict/pipeline/validate.py
+      - src/acepredict/data/schema.py
+    params:
+      - validation
+    outs:
+      - reports/data_validation.json:
+          cache: false
+
+  transform:
+    cmd: python -m acepredict.pipeline.transform
+    deps:
+      - data/raw
+      - reports/data_validation.json
+      - src/acepredict/spark_jobs/transform.py
+    params:
+      - data.levels_exclude
+      - data.holdout_from
+      - spark
+      - features.form_window
+      - features.serve_window
+    outs:
+      - data/interim/matches.parquet
+      - data/interim/live_matches.parquet
+      - data/interim/player_match.parquet
+
+  tune_elo:
+    cmd: python -m acepredict.pipeline.tune_elo
+    deps:
+      - data/interim/matches.parquet
+      - src/acepredict/tuning/tune_elo.py
+      - src/acepredict/ratings/elo.py
+    params:
+      - tune
+      - splits
+      - elo.initial
+    outs:
+      - reports/elo_tuning.json:
+          cache: false
+
+  elo:
+    cmd: python -m acepredict.pipeline.elo
+    deps:
+      - data/interim/matches.parquet
+      - reports/elo_tuning.json
+      - src/acepredict/ratings/elo.py
+      - src/acepredict/pipeline/elo.py
+    params:
+      - elo
+    outs:
+      - data/features/elo_history.parquet
+      - data/features/elo_state.parquet
+      - data/features/elo_params.json
+    metrics:
+      - reports/elo_replication.json:
+          cache: false
+
+  features:
+    cmd: python -m acepredict.pipeline.features
+    deps:
+      - data/interim/matches.parquet
+      - data/interim/player_match.parquet
+      - data/features/elo_history.parquet
+      - data/features/elo_params.json
+      - src/acepredict/features/build.py
+    params:
+      - features.seed
+      - splits
+    outs:
+      - data/features/train_table.parquet
+      - reports/splits.json:
+          cache: false
+
+  train:
+    cmd: python -m acepredict.pipeline.train
+    deps:
+      - data/features/train_table.parquet
+      - src/acepredict/models/train.py
+      - src/acepredict/models/pyfunc.py
+      - src/acepredict/features/build.py
+    params:
+      - model
+      - splits
+      - registry.name
+    outs:
+      - reports/train.json:
+          cache: false
+
+  evaluate:
+    cmd: python -m acepredict.pipeline.evaluate
+    deps:
+      - reports/train.json
+      - data/features/train_table.parquet
+      - src/acepredict/models/evaluate.py
+    metrics:
+      - reports/metrics.json:
+          cache: false
+    plots:
+      - reports/reliability.csv:
+          cache: false
+          x: predicted
+          y: observed
+    outs:
+      - reports/segments.csv:
+          cache: false
+
+  register:
+    cmd: python -m acepredict.pipeline.register
+    deps:
+      - reports/metrics.json
+      - reports/train.json
+      - src/acepredict/models/registry.py
+    params:
+      - registry
+    outs:
+      - reports/promotion.json:
+          cache: false
+
+  snapshot:
+    cmd: python -m acepredict.pipeline.snapshot
+    deps:
+      - data/interim/matches.parquet
+      - data/interim/player_match.parquet
+      - data/features/elo_history.parquet
+      - data/features/elo_state.parquet
+      - data/features/elo_params.json
+      - data/features/train_table.parquet
+      - reports/promotion.json
+      - src/acepredict/pipeline/snapshot.py
+    outs:
+      - artifacts/snapshot

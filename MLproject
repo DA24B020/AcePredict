@@ -1,0 +1,31 @@
+name: acepredict
+
+# Same pinned requirements as the Docker images -> identical dev and test environments.
+# `mlflow run . -e <entry>` rebuilds this environment and records the Git commit on the run.
+python_env: python_env.yaml
+
+entry_points:
+  main:
+    command: "dvc repro"
+  ingest:
+    command: "python -m acepredict.pipeline.ingest"
+  validate:
+    command: "python -m acepredict.pipeline.validate"
+  transform:
+    command: "python -m acepredict.pipeline.transform"
+  tune_elo:
+    command: "python -m acepredict.pipeline.tune_elo"
+  elo:
+    command: "python -m acepredict.pipeline.elo"
+  features:
+    command: "python -m acepredict.pipeline.features"
+  train:
+    parameters:
+      candidates: {type: string, default: "logreg,lightgbm"}
+    command: "python -m acepredict.pipeline.train --candidates {candidates}"
+  evaluate:
+    command: "python -m acepredict.pipeline.evaluate"
+  register:
+    command: "python -m acepredict.pipeline.register"
+  snapshot:
+    command: "python -m acepredict.pipeline.snapshot"

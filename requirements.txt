@@ -1,0 +1,23 @@
+# Single pinned environment shared by the backend, MLflow server, model server and
+# pipeline runner images, and by MLproject (python_env.yaml). Same pins everywhere =
+# identical dev, test and production environments.
+mlflow==2.22.1
+prometheus-flask-exporter==0.23.1
+pandas==2.2.3
+numpy==1.26.4
+pyarrow==18.1.0
+pyspark==4.0.1
+ray[default,tune]==2.40.0
+dvc==3.59.1
+lightgbm==4.5.0
+scikit-learn==1.5.2
+matplotlib==3.9.4
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+pydantic-settings==2.7.0
+prometheus-client==0.21.1
+prometheus-fastapi-instrumentator==7.0.0
+requests==2.32.3
+pyyaml==6.0.2
+sqlalchemy==2.0.36

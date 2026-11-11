@@ -1,0 +1,7 @@
+[core]
+    remote = localstore
+    autostage = true
+[cache]
+    type = "hardlink,symlink"
+['remote "localstore"']
+    url = /dvc-store

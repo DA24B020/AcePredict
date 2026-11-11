@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets and local state (never committed)
+.env
+runtime/
+mlruns/
+mlartifacts/
+
+# Untracked helper outputs (DVC-managed outputs get their own .gitignore entries from DVC)
+reports/ingest_summary.json
+reports/test_report_raw.json
+reports/load_test.json
+reports/openapi.json
+.dvc-remote/
+reports/junit.xml

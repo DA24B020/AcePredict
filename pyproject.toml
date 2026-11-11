@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "acepredict"
+version = "1.0.0"
+description = "AcePredict: tennis match win-probability prediction built and run with AIOps practices"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["data", "artifacts", "mlruns", "runtime", ".dvc"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["B008"]  # FastAPI's Depends() in default arguments is the intended pattern
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "backend", "frontend"]
+markers = [
+    "integration: needs the running docker compose stack (set ACEPREDICT_BASE_URL)",
+    "slow: runs Spark and Ray on the synthetic sample data",
+]
+addopts = "-m 'not integration'"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["acepredict", "app", "api_client", "metrics", "ui"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/gen_dashboards.py" = ["E501"]   # PromQL strings
+"frontend/pages/*.py" = ["E402"]          # Streamlit pages set up the page before imports

@@ -1,0 +1,6 @@
+# The frontend image only needs these: it talks to the backend over REST and never
+# imports the ML code (loose coupling).
+streamlit==1.41.1
+requests==2.32.3
+pandas==2.2.3
+prometheus-client==0.21.1
