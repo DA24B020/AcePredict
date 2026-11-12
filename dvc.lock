@@ -271,7 +271,7 @@ stages:
           - logreg
           - lightgbm
           logreg:
-            C: 1.0
+            C: 0.5
             max_iter: 1000
           lightgbm:
             n_estimators: 300
@@ -291,8 +291,8 @@ stages:
     outs:
     - path: reports/train.json
       hash: md5
-      md5: 7efba8404c5d5bf28687d89114bcc65c
-      size: 1000
+      md5: faa283de8ffc876baac30a86ca1d04ed
+      size: 1002
   evaluate:
     cmd: python -m acepredict.pipeline.evaluate
     deps:
@@ -302,8 +302,8 @@ stages:
       size: 18486338
     - path: reports/train.json
       hash: md5
-      md5: 7efba8404c5d5bf28687d89114bcc65c
-      size: 1000
+      md5: faa283de8ffc876baac30a86ca1d04ed
+      size: 1002
     - path: src/acepredict/models/evaluate.py
       hash: md5
       md5: c49d4c016a06856ed420f2839ccfa9f5
@@ -311,27 +311,27 @@ stages:
     outs:
     - path: reports/metrics.json
       hash: md5
-      md5: 17354c65292961bf9804a8ed53a05088
+      md5: d298678ddc3d99f3e14718c36d4ed48a
       size: 1010
     - path: reports/reliability.csv
       hash: md5
-      md5: 025f2432964488b211747b7329798bbb
-      size: 233
+      md5: 0b5c4d92a65ed69039dac7b2948f5db9
+      size: 232
     - path: reports/segments.csv
       hash: md5
-      md5: e28b2a16f6e540e7c2e443dbaf846aae
-      size: 914
+      md5: 1ca3da9cd46b21ef7e453ba534ff0b3b
+      size: 913
   register:
     cmd: python -m acepredict.pipeline.register
     deps:
     - path: reports/metrics.json
       hash: md5
-      md5: 17354c65292961bf9804a8ed53a05088
+      md5: d298678ddc3d99f3e14718c36d4ed48a
       size: 1010
     - path: reports/train.json
       hash: md5
-      md5: 7efba8404c5d5bf28687d89114bcc65c
-      size: 1000
+      md5: faa283de8ffc876baac30a86ca1d04ed
+      size: 1002
     - path: src/acepredict/models/registry.py
       hash: md5
       md5: b01f1aaf486ddddddef0663835d18dd9
@@ -344,8 +344,8 @@ stages:
     outs:
     - path: reports/promotion.json
       hash: md5
-      md5: 323bff26ce60a5c34cd2dba55bf39d4c
-      size: 234
+      md5: 2291ed3b125b3c9a37c86de072828672
+      size: 267
   snapshot:
     cmd: python -m acepredict.pipeline.snapshot
     deps:
@@ -377,8 +377,8 @@ stages:
       nfiles: 4
     - path: reports/promotion.json
       hash: md5
-      md5: 323bff26ce60a5c34cd2dba55bf39d4c
-      size: 234
+      md5: 2291ed3b125b3c9a37c86de072828672
+      size: 267
     - path: src/acepredict/pipeline/snapshot.py
       hash: md5
       md5: 49822cef7a01f9c50f2a23952661775a
@@ -386,6 +386,6 @@ stages:
     outs:
     - path: artifacts/snapshot
       hash: md5
-      md5: a2fa9c4d23082435bf0a730ea838eb19.dir
+      md5: 058eec39b6b279c9f7d2b9cf87c9b3c0.dir
       size: 5011608
       nfiles: 6

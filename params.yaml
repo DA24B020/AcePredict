@@ -57,7 +57,7 @@ features:
 model:
   candidates: [logreg, lightgbm]
   logreg:
-    C: 1.0
+    C: 0.5
     max_iter: 1000
   lightgbm:
     n_estimators: 300

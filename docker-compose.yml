@@ -10,7 +10,7 @@ services:
     <<: *ml
     build: {context: ., dockerfile: docker/ml.Dockerfile}
     command: >
-      mlflow server --host 0.0.0.0 --port 5000
+      mlflow server --host 0.0.0.0 --port 5000 --workers 2
       --backend-store-uri sqlite:////mlflow/mlflow.db
       --artifacts-destination /mlflow/artifacts --serve-artifacts
       --expose-prometheus /mlflow/prometheus
@@ -20,7 +20,7 @@ services:
       test: ["CMD", "curl", "-fsS", "http://localhost:5000/health"]
       interval: 10s
       retries: 12
-    mem_limit: 1g
+    mem_limit: 1500m
 
   model-server:
     <<: *ml

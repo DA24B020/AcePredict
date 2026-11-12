@@ -1,9 +1,9 @@
 {
-  "challenger_version": "1",
-  "challenger_test_log_loss": 0.6134410215444541,
-  "champion_version_before": null,
-  "champion_test_log_loss": null,
-  "promoted": true,
+  "challenger_version": "2",
+  "challenger_test_log_loss": 0.6134426897945807,
+  "champion_version_before": "1",
+  "champion_test_log_loss": 0.61344,
+  "promoted": false,
   "champion_version_after": "1",
-  "reason": "no champion yet"
+  "reason": "challenger worse than champion; champion kept"
 }
