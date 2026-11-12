@@ -1,4 +1,4 @@
-"""Turn a pytest JUnit XML file into docs/test_report.md (counts + per-test results).
+"""Turn a pytest JUnit XML file into docs/test_report_unit.md (counts + per-test results).
 
     pytest --junitxml=reports/junit.xml ; python scripts/make_test_report.py reports/junit.xml
 """
@@ -46,7 +46,7 @@ def main(xml_path: str) -> int:
                   f"{'PASS' if lt['passed'] else 'FAIL'}", ""]
     lines += ["## Test cases", "", "| Module | Test | Result | Time (s) |", "|---|---|---|---|"]
     lines += [f"| {c} | {n} | {s} | {t:.2f} |" for c, n, s, t in rows]
-    out = ROOT / "docs" / "test_report.md"
+    out = ROOT / "docs" / "test_report_unit.md"
     out.parent.mkdir(exist_ok=True)
     out.write_text("\n".join(lines) + "\n")
     print(f"wrote {out}: {totals}")

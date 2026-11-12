@@ -1,0 +1,2444 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AcePredict API",
+    "description": "Tennis match win probabilities. The frontend talks only to this API.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Liveness probe",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Readiness: snapshot loaded and model up",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not ready (same body)"
+          }
+        }
+      }
+    },
+    "/players": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Search players (sorted by Elo)",
+        "operationId": "list_players_players_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Part of the name",
+              "title": "Q"
+            },
+            "description": "Part of the name"
+          },
+          {
+            "name": "tour",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "atp",
+                    "wta"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tour"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2000,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Active Only"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlayerSummary"
+                  },
+                  "title": "Response List Players Players Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Player profile with Elo history and recent results",
+        "operationId": "player_detail_players__player_id__get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/h2h": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Head-to-head record and past meetings",
+        "operationId": "head_to_head_h2h_get",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "P1"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "P2"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/H2HResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Win probability for player 1 vs player 2",
+        "operationId": "predict_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/batch": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Several predictions in one call (one model-server round trip)",
+        "operationId": "predict_batch_predict_batch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchPredictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchPredictResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/outcomes": {
+      "post": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Report the real result of a predicted match (live accuracy)",
+        "operationId": "outcome_outcomes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutcomeResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/summary": {
+      "get": {
+        "tags": [
+          "predictions"
+        ],
+        "summary": "Live accuracy and drift (also exported to Prometheus)",
+        "operationId": "monitoring_summary_monitoring_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitoringSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model/info": {
+      "get": {
+        "tags": [
+          "model"
+        ],
+        "summary": "Champion model version, run, commit and test metrics",
+        "operationId": "model_info_model_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pipeline/status": {
+      "get": {
+        "tags": [
+          "pipeline"
+        ],
+        "summary": "Stage status, runs, DAG, errors and throughput for the console",
+        "operationId": "pipeline_status_pipeline_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PipelineStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/pipeline/run": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Queue a pipeline run (dvc repro)",
+        "operationId": "run_pipeline_admin_pipeline_run_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunAccepted"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/model/promote": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Make a model version the champion",
+        "operationId": "promote_admin_model_promote_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AliasResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/model/rollback": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Restore the previous champion",
+        "operationId": "rollback_admin_model_rollback_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AliasResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/snapshot/reload": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Reload the serving snapshot now",
+        "operationId": "reload_snapshot_admin_snapshot_reload_post",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/alertmanager": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Alertmanager webhook: retrain on drift alerts",
+        "operationId": "alertmanager_webhook_webhooks_alertmanager_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AliasResponse": {
+        "properties": {
+          "champion_version": {
+            "type": "string",
+            "title": "Champion Version"
+          },
+          "previous_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "champion_version",
+          "previous_version"
+        ],
+        "title": "AliasResponse"
+      },
+      "BatchPredictRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PredictRequest"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "BatchPredictRequest"
+      },
+      "BatchPredictResponse": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PredictResponse"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "results"
+        ],
+        "title": "BatchPredictResponse"
+      },
+      "EloPoint": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "elo": {
+            "type": "number",
+            "title": "Elo"
+          },
+          "elo_hard": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elo Hard"
+          },
+          "elo_clay": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elo Clay"
+          },
+          "elo_grass": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elo Grass"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "elo"
+        ],
+        "title": "EloPoint"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "title": "Error Code",
+            "examples": [
+              "PLAYER_NOT_FOUND"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "details": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error_code",
+          "message"
+        ],
+        "title": "ErrorResponse"
+      },
+      "Factor": {
+        "properties": {
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "contribution": {
+            "type": "number",
+            "title": "Contribution"
+          },
+          "favours": {
+            "type": "string",
+            "enum": [
+              "player1",
+              "player2"
+            ],
+            "title": "Favours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feature",
+          "label",
+          "contribution",
+          "favours"
+        ],
+        "title": "Factor"
+      },
+      "H2HResponse": {
+        "properties": {
+          "player1": {
+            "$ref": "#/components/schemas/PlayerSummary"
+          },
+          "player2": {
+            "$ref": "#/components/schemas/PlayerSummary"
+          },
+          "p1_wins": {
+            "type": "integer",
+            "title": "P1 Wins"
+          },
+          "p2_wins": {
+            "type": "integer",
+            "title": "P2 Wins"
+          },
+          "meetings": {
+            "items": {
+              "$ref": "#/components/schemas/Meeting"
+            },
+            "type": "array",
+            "title": "Meetings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "player1",
+          "player2",
+          "p1_wins",
+          "p2_wins",
+          "meetings"
+        ],
+        "title": "H2HResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          }
+        },
+        "type": "object",
+        "title": "Health"
+      },
+      "MatchResult": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "tournament": {
+            "type": "string",
+            "title": "Tournament"
+          },
+          "surface": {
+            "type": "string",
+            "title": "Surface"
+          },
+          "round": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round"
+          },
+          "opponent": {
+            "type": "string",
+            "title": "Opponent"
+          },
+          "opponent_id": {
+            "type": "string",
+            "title": "Opponent Id"
+          },
+          "won": {
+            "type": "boolean",
+            "title": "Won"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "tournament",
+          "surface",
+          "round",
+          "opponent",
+          "opponent_id",
+          "won",
+          "score"
+        ],
+        "title": "MatchResult"
+      },
+      "Meeting": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "tournament": {
+            "type": "string",
+            "title": "Tournament"
+          },
+          "surface": {
+            "type": "string",
+            "title": "Surface"
+          },
+          "round": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round"
+          },
+          "winner_id": {
+            "type": "string",
+            "title": "Winner Id"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "tournament",
+          "surface",
+          "round",
+          "winner_id",
+          "score"
+        ],
+        "title": "Meeting"
+      },
+      "MlflowRun": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "experiment": {
+            "type": "string",
+            "title": "Experiment"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "name",
+          "experiment",
+          "status",
+          "start_time",
+          "duration_s",
+          "metrics"
+        ],
+        "title": "MlflowRun"
+      },
+      "ModelInfo": {
+        "properties": {
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
+          },
+          "champion_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Champion Version"
+          },
+          "previous_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Version"
+          },
+          "challenger_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challenger Version"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "model_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Type"
+          },
+          "git_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Git Commit"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "test_metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Test Metrics",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_name",
+          "champion_version"
+        ],
+        "title": "ModelInfo"
+      },
+      "MonitoringSummary": {
+        "properties": {
+          "predictions_logged": {
+            "type": "integer",
+            "title": "Predictions Logged"
+          },
+          "outcomes_in_window": {
+            "type": "integer",
+            "title": "Outcomes In Window"
+          },
+          "live_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Accuracy"
+          },
+          "live_log_loss": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Log Loss"
+          },
+          "live_brier": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Brier"
+          },
+          "psi": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Psi"
+          },
+          "drift_sample_size": {
+            "type": "integer",
+            "title": "Drift Sample Size"
+          },
+          "drift_threshold": {
+            "type": "number",
+            "title": "Drift Threshold",
+            "default": 0.2
+          }
+        },
+        "type": "object",
+        "required": [
+          "predictions_logged",
+          "outcomes_in_window",
+          "live_accuracy",
+          "live_log_loss",
+          "live_brier",
+          "psi",
+          "drift_sample_size"
+        ],
+        "title": "MonitoringSummary"
+      },
+      "OutcomeRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "request_id returned by /predict"
+          },
+          "p1_won": {
+            "type": "boolean",
+            "title": "P1 Won"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "p1_won"
+        ],
+        "title": "OutcomeRequest"
+      },
+      "OutcomeResponse": {
+        "properties": {
+          "recorded": {
+            "type": "boolean",
+            "title": "Recorded"
+          },
+          "live_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Accuracy"
+          },
+          "live_log_loss": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Log Loss"
+          },
+          "window": {
+            "type": "integer",
+            "title": "Window"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recorded",
+          "live_accuracy",
+          "live_log_loss",
+          "window"
+        ],
+        "title": "OutcomeResponse"
+      },
+      "PipelineRun": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "reason",
+          "status"
+        ],
+        "title": "PipelineRun"
+      },
+      "PipelineStatus": {
+        "properties": {
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "queued": {
+            "type": "integer",
+            "title": "Queued"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageStatus"
+            },
+            "type": "array",
+            "title": "Stages"
+          },
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/PipelineRun"
+            },
+            "type": "array",
+            "title": "Runs"
+          },
+          "dag_dot": {
+            "type": "string",
+            "title": "Dag Dot"
+          },
+          "failed_log_tail": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failed Log Tail"
+          },
+          "tuning": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tuning"
+          },
+          "validation": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metrics"
+          },
+          "mlflow_runs": {
+            "items": {
+              "$ref": "#/components/schemas/MlflowRun"
+            },
+            "type": "array",
+            "title": "Mlflow Runs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "running",
+          "queued",
+          "stages",
+          "runs",
+          "dag_dot",
+          "failed_log_tail",
+          "tuning",
+          "validation",
+          "metrics",
+          "mlflow_runs"
+        ],
+        "title": "PipelineStatus"
+      },
+      "PlayerDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Player key, e.g. 'atp_104925'"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tour": {
+            "type": "string",
+            "enum": [
+              "atp",
+              "wta"
+            ],
+            "title": "Tour"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "hand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hand"
+          },
+          "elo": {
+            "type": "number",
+            "title": "Elo"
+          },
+          "elo_hard": {
+            "type": "number",
+            "title": "Elo Hard"
+          },
+          "elo_clay": {
+            "type": "number",
+            "title": "Elo Clay"
+          },
+          "elo_grass": {
+            "type": "number",
+            "title": "Elo Grass"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "matches": {
+            "type": "integer",
+            "title": "Matches"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "last_match_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Match Date"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "height_cm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Cm"
+          },
+          "wins": {
+            "type": "integer",
+            "title": "Wins"
+          },
+          "losses": {
+            "type": "integer",
+            "title": "Losses"
+          },
+          "form_last10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Form Last10"
+          },
+          "form_last52w": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Form Last52W"
+          },
+          "elo_history": {
+            "items": {
+              "$ref": "#/components/schemas/EloPoint"
+            },
+            "type": "array",
+            "title": "Elo History"
+          },
+          "recent_matches": {
+            "items": {
+              "$ref": "#/components/schemas/MatchResult"
+            },
+            "type": "array",
+            "title": "Recent Matches"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tour",
+          "elo",
+          "elo_hard",
+          "elo_clay",
+          "elo_grass",
+          "matches",
+          "active",
+          "wins",
+          "losses",
+          "elo_history",
+          "recent_matches"
+        ],
+        "title": "PlayerDetail"
+      },
+      "PlayerSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Player key, e.g. 'atp_104925'"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tour": {
+            "type": "string",
+            "enum": [
+              "atp",
+              "wta"
+            ],
+            "title": "Tour"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "hand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hand"
+          },
+          "elo": {
+            "type": "number",
+            "title": "Elo"
+          },
+          "elo_hard": {
+            "type": "number",
+            "title": "Elo Hard"
+          },
+          "elo_clay": {
+            "type": "number",
+            "title": "Elo Clay"
+          },
+          "elo_grass": {
+            "type": "number",
+            "title": "Elo Grass"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "matches": {
+            "type": "integer",
+            "title": "Matches"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "last_match_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Match Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tour",
+          "elo",
+          "elo_hard",
+          "elo_clay",
+          "elo_grass",
+          "matches",
+          "active"
+        ],
+        "title": "PlayerSummary"
+      },
+      "PredictRequest": {
+        "properties": {
+          "tour": {
+            "type": "string",
+            "enum": [
+              "atp",
+              "wta"
+            ],
+            "title": "Tour"
+          },
+          "player1_id": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 3,
+            "title": "Player1 Id",
+            "examples": [
+              "atp_104925"
+            ]
+          },
+          "player2_id": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 3,
+            "title": "Player2 Id",
+            "examples": [
+              "atp_106421"
+            ]
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "Hard",
+              "Clay",
+              "Grass"
+            ],
+            "title": "Surface",
+            "default": "Hard"
+          },
+          "best_of": {
+            "type": "integer",
+            "enum": [
+              3,
+              5
+            ],
+            "title": "Best Of",
+            "default": 3
+          },
+          "tourney_level": {
+            "type": "string",
+            "enum": [
+              "grand_slam",
+              "masters",
+              "tour"
+            ],
+            "title": "Tourney Level",
+            "default": "tour"
+          },
+          "round": {
+            "type": "string",
+            "enum": [
+              "early",
+              "QF",
+              "SF",
+              "F"
+            ],
+            "title": "Round",
+            "default": "early"
+          },
+          "match_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Date",
+            "description": "Defaults to today"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tour",
+          "player1_id",
+          "player2_id"
+        ],
+        "title": "PredictRequest"
+      },
+      "PredictResponse": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "player1": {
+            "$ref": "#/components/schemas/PlayerSummary"
+          },
+          "player2": {
+            "$ref": "#/components/schemas/PlayerSummary"
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "Hard",
+              "Clay",
+              "Grass"
+            ],
+            "title": "Surface"
+          },
+          "p1_win_prob": {
+            "type": "number",
+            "title": "P1 Win Prob"
+          },
+          "p2_win_prob": {
+            "type": "number",
+            "title": "P2 Win Prob"
+          },
+          "elo_only_p1_prob": {
+            "type": "number",
+            "title": "Elo Only P1 Prob"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "top_factors": {
+            "items": {
+              "$ref": "#/components/schemas/Factor"
+            },
+            "type": "array",
+            "title": "Top Factors"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "head_to_head": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Head To Head"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "player1",
+          "player2",
+          "surface",
+          "p1_win_prob",
+          "p2_win_prob",
+          "elo_only_p1_prob",
+          "model_version",
+          "top_factors",
+          "warnings",
+          "head_to_head"
+        ],
+        "title": "PredictResponse"
+      },
+      "PromoteRequest": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "title": "PromoteRequest"
+      },
+      "Ready": {
+        "properties": {
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "snapshot_loaded": {
+            "type": "boolean",
+            "title": "Snapshot Loaded"
+          },
+          "snapshot_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Date"
+          },
+          "model_server": {
+            "type": "boolean",
+            "title": "Model Server"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ready",
+          "snapshot_loaded",
+          "snapshot_date",
+          "model_server",
+          "model_version"
+        ],
+        "title": "Ready"
+      },
+      "RunAccepted": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "queued_at": {
+            "type": "string",
+            "title": "Queued At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "queued_at"
+        ],
+        "title": "RunAccepted"
+      },
+      "RunRequest": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Reason",
+            "default": "manual"
+          }
+        },
+        "type": "object",
+        "title": "RunRequest"
+      },
+      "StageStatus": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          },
+          "rows_in": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows In"
+          },
+          "rows_out": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows Out"
+          },
+          "rows_per_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows Per S"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "status"
+        ],
+        "title": "StageStatus"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WebhookResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "triggered": {
+            "type": "boolean",
+            "title": "Triggered"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "triggered",
+          "detail"
+        ],
+        "title": "WebhookResponse"
+      }
+    }
+  }
+}

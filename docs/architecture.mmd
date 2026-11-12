@@ -1,0 +1,40 @@
+flowchart TB
+  subgraph User
+    B[Browser]
+  end
+  subgraph App["Serving path (docker compose)"]
+    FE["frontend<br/>Streamlit :8501"]
+    BE["backend<br/>FastAPI :8000"]
+    MS["model-server<br/>mlflow models serve :5001<br/>(champion alias)"]
+  end
+  subgraph ML["ML lifecycle"]
+    PR["pipeline-runner<br/>DVC repro<br/>Spark · Ray Tune · sklearn/LightGBM"]
+    MF["mlflow<br/>tracking + registry :5000"]
+    DATA[("data/ · artifacts/snapshot<br/>DVC cache → ~/dvc-store")]
+  end
+  subgraph Mon["Monitoring"]
+    PG["pushgateway :9091"]
+    PM["prometheus :9090"]
+    AM["alertmanager :9093"]
+    GF["grafana :3000"]
+    NE["node-exporter"]
+    CA["cadvisor"]
+  end
+  SRC[("Sackmann CSVs<br/>(GitHub mirror)")]
+
+  B -->|HTTP| FE
+  FE -->|"REST (BACKEND_URL)"| BE
+  BE -->|"/invocations"| MS
+  BE -->|"aliases, runs"| MF
+  BE -->|"reads snapshot"| DATA
+  BE -->|"trigger file"| PR
+  SRC -->|ingest| PR
+  PR -->|"params, metrics, models"| MF
+  PR --> DATA
+  MS -->|"loads models:/acepredict@champion"| MF
+  PR -->|"stage metrics"| PG
+  PM -->|scrape| BE & FE & MF & PG & NE & CA
+  PM -->|alerts| AM
+  AM -->|"webhook: retrain"| BE
+  GF -->|PromQL| PM
+  FE -.->|"iframe"| GF

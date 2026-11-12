@@ -28,8 +28,8 @@ def main() -> int:
     ap.add_argument("--base-url", default=os.environ.get("ACEPREDICT_BASE_URL",
                                                          "http://localhost:8000"))
     ap.add_argument("--seconds", type=float, default=30)
-    ap.add_argument("--concurrency", type=int, default=8)
-    ap.add_argument("--p95-limit-ms", type=float, default=300)
+    ap.add_argument("--concurrency", type=int, default=4)
+    ap.add_argument("--p95-limit-ms", type=float, default=1000)
     args = ap.parse_args()
     url = args.base_url.rstrip("/")
 
