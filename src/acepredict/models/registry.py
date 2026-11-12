@@ -77,12 +77,16 @@ def promotion_gate(client: MlflowClient, name: str, challenger_version: str,
         "champion_version_before": str(champion.version) if champion else None,
         "champion_test_log_loss": champ_ll,
     }
-    if champion is None or champ_ll is None or challenger_ll <= champ_ll + tolerance:
+    # compare at 5 decimals: the champion's value is stored rounded in a registry tag
+    if champion is None or champ_ll is None or \
+            round(challenger_ll, 5) <= round(champ_ll, 5) + tolerance:
         res = promote(client, name, challenger_version, reason="gate_passed")
         decision.update({"promoted": True, "champion_version_after": res["champion_version"],
                          "reason": "no champion yet" if champion is None else
                          "challenger log-loss <= champion log-loss"})
     else:
+        log.info("kept champion v%s: challenger v%s log-loss %.5f > %.5f", champion.version,
+                 challenger_version, challenger_ll, champ_ll)
         decision.update({"promoted": False,
                          "champion_version_after": str(champion.version),
                          "reason": "challenger worse than champion; champion kept"})
