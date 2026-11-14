@@ -334,8 +334,8 @@ stages:
       size: 1002
     - path: src/acepredict/models/registry.py
       hash: md5
-      md5: b01f1aaf486ddddddef0663835d18dd9
-      size: 3984
+      md5: 83ff2b356d2b64e4f07902212b298d37
+      size: 4259
     params:
       params.yaml:
         registry:
@@ -344,8 +344,8 @@ stages:
     outs:
     - path: reports/promotion.json
       hash: md5
-      md5: 2291ed3b125b3c9a37c86de072828672
-      size: 267
+      md5: f07c874ba8602c4335aa23a5c7b1fe65
+      size: 261
   snapshot:
     cmd: python -m acepredict.pipeline.snapshot
     deps:
@@ -377,8 +377,8 @@ stages:
       nfiles: 4
     - path: reports/promotion.json
       hash: md5
-      md5: 2291ed3b125b3c9a37c86de072828672
-      size: 267
+      md5: f07c874ba8602c4335aa23a5c7b1fe65
+      size: 261
     - path: src/acepredict/pipeline/snapshot.py
       hash: md5
       md5: 49822cef7a01f9c50f2a23952661775a
@@ -386,6 +386,6 @@ stages:
     outs:
     - path: artifacts/snapshot
       hash: md5
-      md5: 058eec39b6b279c9f7d2b9cf87c9b3c0.dir
+      md5: 078fdfadd80e3ee3122021925eeef551.dir
       size: 5011608
       nfiles: 6

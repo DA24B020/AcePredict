@@ -12,4 +12,4 @@ COPY frontend/ /frontend/
 EXPOSE 8501 8502
 HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
   CMD python -c "import urllib.request;urllib.request.urlopen('http://localhost:8501/_stcore/health')"
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "Predict_a_Match.py", "--server.port=8501", "--server.address=0.0.0.0"]

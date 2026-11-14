@@ -26,7 +26,7 @@ src/acepredict/            core library (importable; used by the pipeline, backe
   pipeline/<stage>.py      one module per DVC stage; pipeline/stage.py = common wrapper
   pipeline/runner.py       trigger-file watcher, lock, `dvc repro`, run history
 backend/app/               FastAPI gateway (settings, schemas, services, clients, routers, metrics)
-frontend/                  Streamlit app (api_client.py, ui.py, metrics.py, app.py, pages/)
+frontend/                  Streamlit app (api_client.py, ui.py, metrics.py, Predict_a_Match.py, pages/)
 ```
 
 **Style.** Functional core (pure functions for Elo, features, metrics, PSI), object-oriented
