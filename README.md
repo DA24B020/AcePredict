@@ -53,3 +53,26 @@ Admin key for the console buttons: `ADMIN_API_KEY` in `.env` (default `change-me
 * If Sackmann hasn't published 2025/2026 files yet, ingest skips them (it logs a 404), the splits fall back to the last available seasons, and the replay uses the latest season.
 * Disk: the images take ~3.5 GB and the data plus the DVC cache ~0.5 GB. RAM: the pipeline-runner is capped at 6 GB.
 * Pin exact data: set `data.sackmann_ref` in `params.yaml` to a commit SHA.
+
+## Reproducing results
+Every MLflow run is tagged with the Git commit (`git_commit`) and the DVC lock hash (`dvc_lock_md5`), so any model can be rebuilt exactly.
+
+**Reproduce a specific model version**
+1. In MLflow, open the run (or Models → acepredict → version → run) and copy the `git_commit` tag.
+2. Check out that commit and restore its data and models:
+   ```bash
+   git checkout <git_commit>
+   docker compose exec -T pipeline-runner dvc pull
+   docker compose exec -T pipeline-runner dvc repro
+   ```
+3. `dvc repro` reports every stage as unchanged, which proves the data, parameters and code match. `reports/metrics.json` equals the metrics logged in that MLflow run.
+
+**Reproduce from scratch on a new machine**
+```bash
+git clone <repo-url> acepredict && cd acepredict
+scripts/setup.sh          # builds the images with pinned versions (constraints.txt)
+scripts/start.sh
+scripts/run_pipeline.sh   # downloads the same data (pinned by data.sackmann_ref) and rebuilds everything
+```
+Determinism: fixed seeds for the A/B flip, LightGBM and Ray Tune; time-based splits; pinned Python packages.
+For exact data, set `data.sackmann_ref` in `params.yaml` to a commit SHA of the data mirror.

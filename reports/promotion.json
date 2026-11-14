@@ -1,9 +1,9 @@
 {
-  "challenger_version": "2",
-  "challenger_test_log_loss": 0.6134426897945807,
-  "champion_version_before": "1",
+  "challenger_version": "3",
+  "challenger_test_log_loss": 0.6131149302430057,
+  "champion_version_before": "2",
   "champion_test_log_loss": 0.61344,
   "promoted": true,
-  "champion_version_after": "2",
+  "champion_version_after": "3",
   "reason": "challenger log-loss <= champion log-loss"
 }

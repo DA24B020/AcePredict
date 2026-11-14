@@ -1,37 +1,37 @@
 {
-  "run_id": "a9651eb6fc4a482eb464f19bd98b32db",
-  "model_uri": "runs:/a9651eb6fc4a482eb464f19bd98b32db/model",
+  "run_id": "e695c36ef6a849b583041bd6cd1ea6a8",
+  "model_uri": "runs:/e695c36ef6a849b583041bd6cd1ea6a8/model",
   "registered_model": "acepredict",
-  "version": "2",
+  "version": "3",
   "best_candidate": "logreg",
   "val": {
-    "accuracy": 0.6588326697096242,
-    "log_loss": 0.609933970253621,
-    "brier": 0.21170060661262313,
-    "ece": 0.013818244678599797,
+    "accuracy": 0.6594153636981646,
+    "log_loss": 0.6096634269016721,
+    "brier": 0.2115904157804762,
+    "ece": 0.01326321219675862,
     "n": 10297,
-    "roc_auc": 0.7236065008243624
+    "roc_auc": 0.7237898517596371
   },
   "candidates": {
     "logreg": {
-      "accuracy": 0.6588326697096242,
-      "log_loss": 0.609933970253621,
-      "brier": 0.21170060661262313,
-      "ece": 0.013818244678599797,
+      "accuracy": 0.6594153636981646,
+      "log_loss": 0.6096634269016721,
+      "brier": 0.2115904157804762,
+      "ece": 0.01326321219675862,
       "n": 10297,
-      "roc_auc": 0.7236065008243624
+      "roc_auc": 0.7237898517596371
     },
     "lightgbm": {
-      "accuracy": 0.6571817034087598,
-      "log_loss": 0.6112843691532033,
-      "brier": 0.21229335870060678,
-      "ece": 0.01660951189627649,
+      "accuracy": 0.6595124793629212,
+      "log_loss": 0.6107395221235736,
+      "brier": 0.2120317449921521,
+      "ece": 0.01605100233411633,
       "n": 10297,
-      "roc_auc": 0.7216439667393857
+      "roc_auc": 0.7225701907747618
     }
   },
   "candidate_run_ids": {
-    "logreg": "ae7c0266b7464792a3c7a6c2d368840d",
-    "lightgbm": "63616782fb99492eaa255dc235029916"
+    "logreg": "acdb3a0f53ad413a8ce3d25f2797d0db",
+    "lightgbm": "a08d5c8df1894bb586c6170edbfc0039"
   }
 }

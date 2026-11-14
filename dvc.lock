@@ -90,17 +90,17 @@ stages:
     outs:
     - path: data/interim/live_matches.parquet
       hash: md5
-      md5: eb441c40b194dd773acc376f8f7d865e.dir
+      md5: d096030fd9082f87be14a3a30fbf6e1e.dir
       size: 147549
       nfiles: 4
     - path: data/interim/matches.parquet
       hash: md5
-      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      md5: 4bbbf14f47935a3b167bd823237c7b84.dir
       size: 7378775
       nfiles: 4
     - path: data/interim/player_match.parquet
       hash: md5
-      md5: b8d497ad8e4e901e74e78d3158f433b2.dir
+      md5: 11160c83ac978d75974debce8e0318f9.dir
       size: 15432138
       nfiles: 4
   tune_elo:
@@ -108,7 +108,7 @@ stages:
     deps:
     - path: data/interim/matches.parquet
       hash: md5
-      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      md5: 4bbbf14f47935a3b167bd823237c7b84.dir
       size: 7378775
       nfiles: 4
     - path: src/acepredict/ratings/elo.py
@@ -151,20 +151,20 @@ stages:
     outs:
     - path: reports/elo_tuning.json
       hash: md5
-      md5: 5081f64449707a8bfdefe97fe04817c4
-      size: 434
+      md5: dc883f1c34a90eacaf213ebdad913f8d
+      size: 435
   elo:
     cmd: python -m acepredict.pipeline.elo
     deps:
     - path: data/interim/matches.parquet
       hash: md5
-      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      md5: 4bbbf14f47935a3b167bd823237c7b84.dir
       size: 7378775
       nfiles: 4
     - path: reports/elo_tuning.json
       hash: md5
-      md5: 5081f64449707a8bfdefe97fe04817c4
-      size: 434
+      md5: dc883f1c34a90eacaf213ebdad913f8d
+      size: 435
     - path: src/acepredict/pipeline/elo.py
       hash: md5
       md5: 7c8e068aa82cbf2d5dd337488da7bed8
@@ -185,39 +185,39 @@ stages:
     outs:
     - path: data/features/elo_history.parquet
       hash: md5
-      md5: 72bf433a9145e01ae9a3aa62cfdd0dd8
-      size: 17539043
+      md5: 2f6b304077d12a1fd4686e77f4c59159
+      size: 17538265
     - path: data/features/elo_params.json
       hash: md5
-      md5: dcd9393f8a9d749f73264b14e91380ef
-      size: 179
+      md5: 0891a0e709d713afbf0c2f9e10395d30
+      size: 181
     - path: data/features/elo_state.parquet
       hash: md5
-      md5: ddc49e691252dc9493b3c354710c0a02
+      md5: ee76200533a4d123a7cf4dd974754782
       size: 203301
     - path: reports/elo_replication.json
       hash: md5
-      md5: 40c623375fafe89150c86ac453093e25
-      size: 380
+      md5: 239ebb7443c836714527e366e361bf6b
+      size: 382
   features:
     cmd: python -m acepredict.pipeline.features
     deps:
     - path: data/features/elo_history.parquet
       hash: md5
-      md5: 72bf433a9145e01ae9a3aa62cfdd0dd8
-      size: 17539043
+      md5: 2f6b304077d12a1fd4686e77f4c59159
+      size: 17538265
     - path: data/features/elo_params.json
       hash: md5
-      md5: dcd9393f8a9d749f73264b14e91380ef
-      size: 179
+      md5: 0891a0e709d713afbf0c2f9e10395d30
+      size: 181
     - path: data/interim/matches.parquet
       hash: md5
-      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      md5: 4bbbf14f47935a3b167bd823237c7b84.dir
       size: 7378775
       nfiles: 4
     - path: data/interim/player_match.parquet
       hash: md5
-      md5: b8d497ad8e4e901e74e78d3158f433b2.dir
+      md5: 11160c83ac978d75974debce8e0318f9.dir
       size: 15432138
       nfiles: 4
     - path: src/acepredict/features/build.py
@@ -239,8 +239,8 @@ stages:
     outs:
     - path: data/features/train_table.parquet
       hash: md5
-      md5: 672a58d301cec1e9eb354cee8ece94d1
-      size: 18486338
+      md5: 2c3ed38f7cb610c5b80c158a8f919006
+      size: 18486367
     - path: reports/splits.json
       hash: md5
       md5: 0cd0bfb0f2f447171d932156007de85e
@@ -250,8 +250,8 @@ stages:
     deps:
     - path: data/features/train_table.parquet
       hash: md5
-      md5: 672a58d301cec1e9eb354cee8ece94d1
-      size: 18486338
+      md5: 2c3ed38f7cb610c5b80c158a8f919006
+      size: 18486367
     - path: src/acepredict/features/build.py
       hash: md5
       md5: 48f94415668ad5a819dc8138285f2fff
@@ -291,19 +291,19 @@ stages:
     outs:
     - path: reports/train.json
       hash: md5
-      md5: faa283de8ffc876baac30a86ca1d04ed
-      size: 1002
+      md5: 0f4868bf408c34d2b8f6852732867332
+      size: 999
   evaluate:
     cmd: python -m acepredict.pipeline.evaluate
     deps:
     - path: data/features/train_table.parquet
       hash: md5
-      md5: 672a58d301cec1e9eb354cee8ece94d1
-      size: 18486338
+      md5: 2c3ed38f7cb610c5b80c158a8f919006
+      size: 18486367
     - path: reports/train.json
       hash: md5
-      md5: faa283de8ffc876baac30a86ca1d04ed
-      size: 1002
+      md5: 0f4868bf408c34d2b8f6852732867332
+      size: 999
     - path: src/acepredict/models/evaluate.py
       hash: md5
       md5: c49d4c016a06856ed420f2839ccfa9f5
@@ -311,27 +311,27 @@ stages:
     outs:
     - path: reports/metrics.json
       hash: md5
-      md5: d298678ddc3d99f3e14718c36d4ed48a
+      md5: 991cad019d04fbd643b7ed14edcc6458
       size: 1010
     - path: reports/reliability.csv
       hash: md5
-      md5: 0b5c4d92a65ed69039dac7b2948f5db9
-      size: 232
+      md5: 8cc69fb3505c2256616e6658fceb78bf
+      size: 235
     - path: reports/segments.csv
       hash: md5
-      md5: 1ca3da9cd46b21ef7e453ba534ff0b3b
-      size: 913
+      md5: 9b82c2c9a75089bbec2914e84fa5b2aa
+      size: 914
   register:
     cmd: python -m acepredict.pipeline.register
     deps:
     - path: reports/metrics.json
       hash: md5
-      md5: d298678ddc3d99f3e14718c36d4ed48a
+      md5: 991cad019d04fbd643b7ed14edcc6458
       size: 1010
     - path: reports/train.json
       hash: md5
-      md5: faa283de8ffc876baac30a86ca1d04ed
-      size: 1002
+      md5: 0f4868bf408c34d2b8f6852732867332
+      size: 999
     - path: src/acepredict/models/registry.py
       hash: md5
       md5: 83ff2b356d2b64e4f07902212b298d37
@@ -344,40 +344,40 @@ stages:
     outs:
     - path: reports/promotion.json
       hash: md5
-      md5: f07c874ba8602c4335aa23a5c7b1fe65
+      md5: 360d1355b9340be74527d2076a7f6327
       size: 261
   snapshot:
     cmd: python -m acepredict.pipeline.snapshot
     deps:
     - path: data/features/elo_history.parquet
       hash: md5
-      md5: 72bf433a9145e01ae9a3aa62cfdd0dd8
-      size: 17539043
+      md5: 2f6b304077d12a1fd4686e77f4c59159
+      size: 17538265
     - path: data/features/elo_params.json
       hash: md5
-      md5: dcd9393f8a9d749f73264b14e91380ef
-      size: 179
+      md5: 0891a0e709d713afbf0c2f9e10395d30
+      size: 181
     - path: data/features/elo_state.parquet
       hash: md5
-      md5: ddc49e691252dc9493b3c354710c0a02
+      md5: ee76200533a4d123a7cf4dd974754782
       size: 203301
     - path: data/features/train_table.parquet
       hash: md5
-      md5: 672a58d301cec1e9eb354cee8ece94d1
-      size: 18486338
+      md5: 2c3ed38f7cb610c5b80c158a8f919006
+      size: 18486367
     - path: data/interim/matches.parquet
       hash: md5
-      md5: bd70b339e6220adad9a1d26b1bf2fdc2.dir
+      md5: 4bbbf14f47935a3b167bd823237c7b84.dir
       size: 7378775
       nfiles: 4
     - path: data/interim/player_match.parquet
       hash: md5
-      md5: b8d497ad8e4e901e74e78d3158f433b2.dir
+      md5: 11160c83ac978d75974debce8e0318f9.dir
       size: 15432138
       nfiles: 4
     - path: reports/promotion.json
       hash: md5
-      md5: f07c874ba8602c4335aa23a5c7b1fe65
+      md5: 360d1355b9340be74527d2076a7f6327
       size: 261
     - path: src/acepredict/pipeline/snapshot.py
       hash: md5
@@ -386,6 +386,6 @@ stages:
     outs:
     - path: artifacts/snapshot
       hash: md5
-      md5: 078fdfadd80e3ee3122021925eeef551.dir
-      size: 5011608
+      md5: 77ec9a49dc02aa73c99316725c40f89e.dir
+      size: 4992244
       nfiles: 6

@@ -1,0 +1,4 @@
+/elo_history.parquet
+/elo_state.parquet
+/elo_params.json
+/train_table.parquet
